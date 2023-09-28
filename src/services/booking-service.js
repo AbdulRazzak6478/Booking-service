@@ -91,7 +91,7 @@ async function cancelBooking(bookingId)
         if(bookingDetails.status == CANCELLED)
         {
             await transaction.commit();
-            return true;
+            return true; 
         }
         await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${bookingDetails.flightId}/seats `,{
             seats: bookingDetails.noOfSeats,
