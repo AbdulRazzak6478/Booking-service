@@ -21,6 +21,7 @@ async function createBooking(req, res) {
 async function makePayment(req, res) {
     try {
       const idempotencyKey = req.headers['x-idempotency-key'];
+      console.log('headers : ',req.headers);
       if(!idempotencyKey){
         return res
         .status(StatusCodes.BAD_REQUEST)
