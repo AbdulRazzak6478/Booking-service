@@ -29,7 +29,7 @@ async function createBooking(data)
         const totalBillingAmt = data.noOfSeats * flightData.price;
         console.log(totalBillingAmt);
         const bookingPayload = {...data, totalCost: totalBillingAmt};
-        const booking = await bookingRepository.create(bookingPayload, transaction);
+        const booking = await bookingRepository.createBooking(bookingPayload, transaction);
 
         await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${data.flightId}/seats `,{
             seats: data.noOfSeats
@@ -56,7 +56,7 @@ async function makePayment(data)
         const currentTime = new Date();
         console.log('booking time ,',bookingTime);
         console.log('current time ,',currentTime);
-        if(currentTime - bookingTime > 600000)
+        if(currentTime - bookingTime > 600000) // for 10 minutes
         {
             await cancelBooking(data.bookingId);
             throw new AppError('The Booking has Expired!, Booking initiated 10 minutes time is over',StatusCodes.BAD_REQUEST);
@@ -107,7 +107,7 @@ async function cancelBooking(bookingId)
 
 async function cancelOldBookings(){
     try {
-        const time = new Date(Date.now() - 1000*300); // time 5 min ago
+        const time = new Date(Date.now() - 1000*600); // time 10 min ago
         const response = await bookingRepository.cancelOldBookings(time);
         return response;
     } catch (error) {
