@@ -1,5 +1,5 @@
 const { StatusCodes } = require('http-status-codes');
-const { BookingService } = require('../services')
+const { BookingService,IdemKeysService } = require('../services')
 const { SuccessResponse, ErrorResponse } = require("../utils/common");
 
 let in_memoDb = {};
@@ -21,26 +21,34 @@ async function createBooking(req, res) {
 async function makePayment(req, res) {
     try {
       const idempotencyKey = req.headers['x-idempotency-key'];
-      console.log('headers : ',req.headers);
+      
       if(!idempotencyKey){
         return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({message:'idempotency key missing'});
+        .json({message:'x-idempotency-key:\'token\' , unique key missing'});
       }
-      if(in_memoDb[idempotencyKey])
+
+      const getIdemkey = await IdemKeysService.getIdemkey(idempotencyKey);
+
+      if(getIdemkey.length!=0)
       {
-        console.log('start idem');
+        ErrorResponse.error={message:'Cannot retry on a successful payment'}
         return res
           .status(StatusCodes.BAD_REQUEST)
-          .json({message:'Cannot retry on a successful payment'});
+          .json(ErrorResponse);
       }
       const response = await BookingService.makePayment({
         bookingId : req.body.bookingId,
         userId: req.body.userId,
         totalCost : req.body.totalCost,
       });
-      in_memoDb[idempotencyKey]=idempotencyKey;
-      SuccessResponse.data = response;
+      const idemKeyCreate = await IdemKeysService.createIdemKey({
+        value:idempotencyKey,
+        userId:req.body.userId,
+        bookingId:req.body.bookingId
+      })
+      const bookingPaymentPayload = {...idemKeyCreate.dataValues,totalCost:req.body.totalCost}
+      SuccessResponse.data = bookingPaymentPayload;
       return res.status(StatusCodes.OK).json(SuccessResponse);
     } catch (error) {
       console.log("error in controller",error);

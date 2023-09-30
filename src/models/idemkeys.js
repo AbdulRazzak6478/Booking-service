@@ -14,11 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   idemKeys.init({
-    keys: {
-      type:DataTypes.STRING,
-      allowNull:false
-    },
-    values:{
+    value:{
       type:DataTypes.STRING,
       allowNull:false,
       unique:true,

@@ -5,7 +5,7 @@ function scheduleCron()
 {
     // '*/5 * * * * *' for 5 sec
     // '*/10 * * * * ' for 10 min
-    cron.schedule('*/30 * * * * ',async()=>{
+    cron.schedule('*/15 * * * * ',async()=>{
         console.log('Auto Cancelling initiated bookings');
         const response = await BookingService.cancelOldBookings()
     })
