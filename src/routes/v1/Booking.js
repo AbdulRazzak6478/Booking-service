@@ -14,6 +14,7 @@ router.post(
 
 router.post(
     '/payments',
+    BookingsMiddlewares.checkPaymentRequest,
     BookingController.makePayment
 )
 
