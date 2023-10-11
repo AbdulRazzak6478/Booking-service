@@ -11,4 +11,4 @@ function scheduleCron()
     })
 }
 
-module.exports =scheduleCron();
+module.exports = scheduleCron();

@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const { BookingRepository } = require('../repositories')
 const db = require('../models');
-const { ServerConfig } = require('../config');
+const { ServerConfig ,Queue} = require('../config');
 const { StatusCodes } = require('http-status-codes');
 const AppError = require('../utils/errors/app-error');
 // const { log } = require('winston');
@@ -64,12 +64,27 @@ async function makePayment(data)
         {
             throw new AppError('The user corresponding to the booking does not match',StatusCodes.BAD_REQUEST);
         }
-        // we assume here that payment is successfu
+        // we assume here that payment is successfull
 
         const response = await bookingRepository.update(data.bookingId,{status:BOOKED},transaction);
 
         await transaction.commit();
 
+
+        const userData = await axios.get(`${ServerConfig.AUTH_SERVICE}/api/v1/user/${data.userId}`)
+        const userEmail = userData.data.data.email;
+
+        const flight = await axios.get(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${bookingDetails.flightId}`)
+        const flightData = flight.data.data;
+        const booking_content = JSON.parse(JSON.stringify(bookingDetails));
+        const flight_content = JSON.parse(JSON.stringify(flightData));
+        await Queue.sendData({
+            recepientEmail : userEmail,
+            subject:`Seat Booked for the Flight ${flightData.flightNumber}`,
+            text : `Booking Successfully done the with bookingId  : ${bookingDetails.id} and FlightId : ${flightData.id}`,
+            booking_details : booking_content,
+            flight_details : flight_content,
+        })
         return response;
     } catch (error) {
         console.log('booking service makePayment error',error);
