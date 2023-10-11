@@ -82,8 +82,8 @@ async function makePayment(data)
             recepientEmail : userEmail,
             subject:`Seat Booked for the Flight ${flightData.flightNumber}`,
             text : `Booking Successfully done the with bookingId  : ${bookingDetails.id} and FlightId : ${flightData.id}`,
-            booking_details : booking_content,
-            flight_details : flight_content,
+            // booking_details : booking_content,
+            // flight_details : flight_content,
         })
         return response;
     } catch (error) {
