@@ -46,3 +46,47 @@ Lets take a look inside the `src` folder
  ```
  npm run dev
  ```
+
+ # How to use Booking service routes
+ - Bookings
+Bookings `http://localhost:3000/api/v1/bookings/`
+```
+  to create Booking
+  /*
+    POST /bookings/
+    body {
+      flightId :2,
+      userId : 5
+      noOfSeats : 2
+    }
+
+  */
+  body {
+        flightId : req.body.flightId,
+        userId: req.body.userId,
+        noOfSeats : req.body.noOfSeats,
+      }
+```
+
+after that routes is about to make payment
+- MakePayment where we mimic like payment
+- `http://localhost:3000/api/v1/bookings/payment`
+```
+  Proceed for payment
+  /*
+    POST /bookings/payment
+    body {
+      bookingId :1,
+      userId : 5
+      totalCost : 5000 Ex : noOfSeats * price
+    }
+  */
+  body {
+        bookingId : req.body.bookingId,
+        userId: req.body.userId,
+        totalCost : req.body.totalCost,
+      }
+
+```
+- For uniquely identifying transaction mention idempotency `'x-idempotency-key'` key in headers using like `bearer-token`
+- make payment request is valid for 10 minutes after that if payments is not done then no of seats that have booked will be released
